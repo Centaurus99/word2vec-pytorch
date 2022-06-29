@@ -1,4 +1,5 @@
 import argparse
+import sys
 import yaml
 import os
 import torch
@@ -17,7 +18,7 @@ from utils.helper import (
 
 def train(config):
     os.makedirs(config["model_dir"])
-    
+
     train_dataloader, vocab = get_dataloader_and_vocab(
         model_name=config["model_name"],
         ds_name=config["dataset"],
@@ -75,17 +76,22 @@ def train(config):
     save_vocab(vocab, config["model_dir"])
     save_config(config, config["model_dir"])
     print("Model artifacts saved to folder:", config["model_dir"])
-    
-    
+    config_path = os.path.join(config["model_dir"], "result.txt")
+    with open(config_path, "w") as stream:
+        stream.write("{}\t{:.3f}\t{:.6f}\n".format(
+            config["train_batch_size"], config["learning_rate"], trainer.loss["val"][-1]))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, required=True, help='path to yaml config')
+    parser.add_argument('--config', type=str, required=True,
+                        help='path to yaml config')
     parser.add_argument('--model_name', type=str)
     parser.add_argument('--train_batch_size', type=int)
     parser.add_argument('--learning_rate', type=float)
     parser.add_argument('--model_dir', type=str)
     args = parser.parse_args()
-    
+
     with open(args.config, 'r') as stream:
         config = yaml.safe_load(stream)
     if args.model_name:
