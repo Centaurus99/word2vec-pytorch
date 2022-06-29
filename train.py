@@ -80,8 +80,20 @@ def train(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, required=True, help='path to yaml config')
+    parser.add_argument('--model_name', type=str)
+    parser.add_argument('--train_batch_size', type=int)
+    parser.add_argument('--learning_rate', type=float)
+    parser.add_argument('--model_dir', type=str)
     args = parser.parse_args()
     
     with open(args.config, 'r') as stream:
         config = yaml.safe_load(stream)
+    if args.model_name:
+        config["model_name"] = args.model_name
+    if args.train_batch_size:
+        config["train_batch_size"] = args.train_batch_size
+    if args.learning_rate:
+        config["learning_rate"] = args.learning_rate
+    if args.model_dir:
+        config["model_dir"] = args.model_dir
     train(config)
